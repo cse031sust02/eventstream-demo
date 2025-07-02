@@ -14,8 +14,14 @@ def sse_demo_2(request):
         except StopIteration as e:
             web_content = e.value
         
-        # Call parse_result
-        result = parse_result(web_content)
+        # Call parse_result (it will also yield its own notifications)
+        gen = parse_result(web_content)
+        try:
+            while True:
+                val = next(gen)
+                yield val
+        except StopIteration as e:
+            result = e.value
         
         # Send final result
         yield from send_notification("bot_response", "bot", result)
