@@ -8,124 +8,66 @@ function parseEventData(data) {
   }
 }
 
-function ThinkingStep({ step, isExpanded, onToggle, isLast }) {
-  const getStepColor = (content) => {
-    if (content.includes('❌')) return '#ff6b6b';
-    if (content.includes('✅')) return '#51cf66';
-    if (content.includes('🎉')) return '#339af0';
-    return '#339af0';
-  };
-
-  const getStepNumber = (index) => {
-    return String(index + 1).padStart(2, '0');
-  };
-
+function Timeline({ steps }) {
   return (
-    <div style={{ 
-      marginBottom: 0,
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'flex-start'
-    }}>
-      {/* Timeline dot */}
+    <div style={{ position: 'relative', marginTop: 8 }}>
+      {/* Continuous timeline line */}
       <div style={{
         position: 'absolute',
-        top: 20,
-        left: 30,
-        width: 20,
-        height: 20,
-        borderRadius: '50%',
-        background: getStepColor(step.content),
-        border: '3px solid white',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '10px',
-        color: 'white',
-        fontWeight: 'bold',
-        zIndex: 2
-      }}>
-        {getStepNumber(step.index)}
-      </div>
-      
-      {/* Content */}
-      <div style={{ 
-        flex: 1,
-        background: 'white',
-        border: '1px solid #e9ecef',
-        borderRadius: 8,
-        overflow: 'hidden',
-        marginBottom: 16,
-        marginLeft: 60,
-        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-      }}>
-        <div 
-          onClick={onToggle}
-          style={{
-            padding: '16px 20px',
-            cursor: 'pointer',
+        left: 40,
+        top: 0,
+        bottom: 0,
+        width: 2,
+        background: '#e9ecef',
+        zIndex: 1
+      }}></div>
+      {steps.map((step, idx) => (
+        <div key={step.id} style={{ 
+          marginBottom: 0,
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'flex-start'
+        }}>
+          {/* Timeline dot */}
+          <div style={{
+            position: 'absolute',
+            top: 20,
+            left: 30,
+            width: 20,
+            height: 20,
+            borderRadius: '50%',
+            background: '#339af0',
+            border: '3px solid white',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            background: isExpanded ? '#f8f9fa' : 'white',
-            borderBottom: isExpanded ? '1px solid #e9ecef' : 'none',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          <div style={{ flex: 1 }}>
-            <div style={{ 
-              fontSize: '16px', 
-              fontWeight: '600',
-              color: '#2c3e50',
-              marginBottom: 4
-            }}>
-              {step.title}
-            </div>
-            <div style={{ 
-              fontSize: '13px', 
-              color: '#868e96',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8
-            }}>
-              <span>{step.timestamp}</span>
-              {!isLast && (
-                <>
-                  <span>•</span>
-                  <span style={{ color: '#339af0', fontWeight: '500' }}>Processing...</span>
-                </>
-              )}
-            </div>
-          </div>
-          
-          <div style={{
-            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.2s',
-            fontSize: '14px',
-            color: '#868e96',
-            marginLeft: 12
+            justifyContent: 'center',
+            fontSize: '10px',
+            color: 'white',
+            fontWeight: 'bold',
+            zIndex: 2
           }}>
-            ▼
+            {String(idx + 1).padStart(2, '0')}
+          </div>
+          {/* Content */}
+          <div style={{ 
+            flex: 1,
+            background: 'white',
+            border: '1px solid #e9ecef',
+            borderRadius: 8,
+            overflow: 'hidden',
+            marginBottom: 16,
+            marginLeft: 60,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+          }}>
+            <div style={{ padding: '16px 20px' }}>
+              <div style={{ fontSize: '16px', fontWeight: '600', color: '#2c3e50', marginBottom: 4 }}>{step.title}</div>
+              <div style={{ fontSize: '13px', color: '#868e96', marginBottom: 8 }}>{step.timestamp}</div>
+              <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#495057' }}>{step.content.replace(/[🤔💡🔍✅📋🌐📊📦🧠📝🎉❌🤷‍♂️]/g, '')}</div>
+            </div>
           </div>
         </div>
-        
-        {isExpanded && (
-          <div style={{ 
-            padding: '20px',
-            background: '#f8f9fa',
-            borderTop: '1px solid #e9ecef'
-          }}>
-            <div style={{ 
-              fontSize: '14px',
-              lineHeight: '1.6',
-              color: '#495057'
-            }}>
-              {step.content.replace(/[🤔💡🔍✅📋🌐📊📦🧠📝🎉❌🤷‍♂️]/g, '')}
-            </div>
-          </div>
-        )}
-      </div>
+      ))}
     </div>
   );
 }
@@ -173,7 +115,7 @@ function SSEDemo({ endpoint, title, description }) {
   const [events, setEvents] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState(null);
-  const [expandedSteps, setExpandedSteps] = useState(new Set());
+  const [timelineOpen, setTimelineOpen] = useState(true);
   const [thinkingSteps, setThinkingSteps] = useState([]);
   const [finalResponse, setFinalResponse] = useState(null);
 
@@ -184,7 +126,6 @@ function SSEDemo({ endpoint, title, description }) {
     setIsConnected(false);
     setThinkingSteps([]);
     setFinalResponse(null);
-    setExpandedSteps(new Set());
 
     const fetchSSE = async () => {
       try {
@@ -243,7 +184,6 @@ function SSEDemo({ endpoint, title, description }) {
                     index: stepCounter - 1
                   };
                   setThinkingSteps(prev => [...prev, step]);
-                  setExpandedSteps(prev => new Set([...prev, step.id]));
                 } else if (type === 'bot_response') {
                   setFinalResponse(parsedData.message?.content?.preview || data);
                 }
@@ -285,25 +225,8 @@ function SSEDemo({ endpoint, title, description }) {
     return 'Processing Step';
   };
 
-  const toggleStep = (stepId) => {
-    setExpandedSteps(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(stepId)) {
-        newSet.delete(stepId);
-      } else {
-        newSet.add(stepId);
-      }
-      return newSet;
-    });
-  };
-
-  const clearEvents = () => {
-    setEvents([]);
-    setError(null);
-    setThinkingSteps([]);
-    setFinalResponse(null);
-    setExpandedSteps(new Set());
-  };
+  // Extract file_data events for file stream demo
+  const fileDataEvents = events.filter(e => e.type === 'file_data');
 
   return (
     <div style={{ maxWidth: 900, margin: '20px auto', fontFamily: 'sans-serif' }}>
@@ -334,7 +257,6 @@ function SSEDemo({ endpoint, title, description }) {
           </div>
           
           <button 
-            onClick={clearEvents} 
             style={{ 
               padding: '8px 16px', 
               border: '1px solid #ddd', 
@@ -364,49 +286,57 @@ function SSEDemo({ endpoint, title, description }) {
           </div>
         )}
 
-        <div style={{ background: '#f8f9fa', borderRadius: 12, padding: 24, minHeight: 300 }}>
-          {thinkingSteps.length === 0 && !error && (
-            <div style={{ 
-              color: '#6c757d', 
-              textAlign: 'center', 
-              padding: '60px 20px',
-              fontSize: '16px'
-            }}>
+        {/* File stream data display */}
+        {fileDataEvents.length > 0 && (
+          <div style={{ background: '#f8f9fa', borderRadius: 8, padding: 20, marginBottom: 24 }}>
+            <h3 style={{ color: '#3498db', marginBottom: 12, fontSize: 18 }}>File Content Stream</h3>
+            <div style={{ maxHeight: 350, overflowY: 'auto', fontFamily: 'monospace', fontSize: 15 }}>
+              {fileDataEvents.map((event, idx) => (
+                <div key={idx} style={{ color: '#2c3e50', padding: '4px 0', borderBottom: '1px solid #e9ecef' }}>
+                  {event.data}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Timeline accordion */}
+        <div style={{ background: '#f8f9fa', borderRadius: 12, padding: 0, minHeight: 100, marginBottom: 24 }}>
+          <div 
+            onClick={() => setTimelineOpen(open => !open)}
+            style={{
+              cursor: 'pointer',
+              padding: '20px 24px',
+              borderBottom: timelineOpen ? '1px solid #e9ecef' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              background: timelineOpen ? '#f8f9fa' : '#f4f4f4',
+              fontWeight: 600,
+              fontSize: 18,
+              color: '#2c3e50',
+              borderRadius: '12px 12px 0 0'
+            }}
+          >
+            Thinking...
+            <span style={{ fontSize: 18, marginLeft: 12 }}>{timelineOpen ? '▲' : '▼'}</span>
+          </div>
+          {timelineOpen && thinkingSteps.length > 0 && (
+            <div style={{ padding: 24 }}>
+              <Timeline steps={thinkingSteps} />
+            </div>
+          )}
+          {timelineOpen && thinkingSteps.length === 0 && !fileDataEvents.length && !error && (
+            <div style={{ color: '#6c757d', textAlign: 'center', padding: '60px 20px', fontSize: '16px' }}>
               <div style={{ fontSize: '48px', marginBottom: 16 }}>🤖</div>
               Waiting for AI to start thinking...
             </div>
           )}
-          
-          {thinkingSteps.length > 0 && (
-            <div style={{ position: 'relative' }}>
-              {/* Continuous timeline line */}
-              <div style={{
-                position: 'absolute',
-                left: 40,
-                top: 0,
-                bottom: 0,
-                width: 2,
-                background: '#e9ecef',
-                zIndex: 1
-              }}></div>
-              
-              {thinkingSteps.map((step, idx) => (
-                <ThinkingStep
-                  key={step.id}
-                  step={{ ...step, index: idx }}
-                  isExpanded={expandedSteps.has(step.id)}
-                  onToggle={() => toggleStep(step.id)}
-                  isLast={idx === thinkingSteps.length - 1}
-                />
-              ))}
-            </div>
-          )}
-          
-          <ResponseSection 
-            content={finalResponse} 
-            isVisible={!!finalResponse}
-          />
         </div>
+        <ResponseSection 
+          content={finalResponse} 
+          isVisible={!!finalResponse}
+        />
       </div>
       
       <style>{`
