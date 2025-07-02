@@ -39,11 +39,12 @@ docker-compose up --build
 
 - `GET /api/health/` - Health check
 - `GET /api/sse-demo` - Basic SSE demo
-- `GET /api/sse-demo-2` - **Web scraping SSE demo** (fetches real websites)
+- `GET /api/sse-demo-2` - Simple SSE demo (simulated web search)
+- `GET /api/sse-demo-3` - **Real web scraping SSE demo** (fetches real websites)
 
 ## Web Scraping Demo
 
-The `/api/sse-demo-2` endpoint:
+The `/api/sse-demo-3` endpoint:
 - Randomly selects from example websites (example.com, httpbin.org, etc.)
 - Fetches real content in real-time
 - Parses HTML, JSON, and XML intelligently
@@ -51,7 +52,7 @@ The `/api/sse-demo-2` endpoint:
 
 ### Test with curl:
 ```bash
-curl -N http://localhost:8000/api/sse-demo-2
+curl -N http://localhost:8000/api/sse-demo-3
 ```
 
 ## Project Structure
@@ -59,8 +60,10 @@ curl -N http://localhost:8000/api/sse-demo-2
 ```
 eventstream-demo/
 ├── core/                 # Django backend
-│   ├── helper.py        # Web scraping logic
-│   ├── sse_demo_2.py    # Advanced SSE endpoint
+│   ├── helper.py        # Simple helper functions
+│   ├── web_scraper.py   # Real web scraping logic
+│   ├── sse_demo_2.py    # Simple SSE endpoint
+│   ├── sse_demo_3.py    # Real web scraping SSE endpoint
 │   └── urls.py          # URL routing
 ├── sse-demo-client/     # React frontend
 ├── requirements.txt     # Python dependencies
@@ -76,7 +79,7 @@ eventstream-demo/
 ## Development
 
 ### Adding New Websites
-Update the `websites` list in `core/helper.py`:
+Update the `websites` list in `core/web_scraper.py`:
 
 ```python
 websites = [

@@ -3,7 +3,7 @@ import os
 import time
 
 # Path to the large file (update as needed)
-LARGE_FILE_PATH = '/app/large_file.txt'
+LARGE_FILE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'large_file.txt')
 
 def file_stream_generator():
     if not os.path.exists(LARGE_FILE_PATH):

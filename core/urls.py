@@ -20,10 +20,12 @@ from django.urls import path
 from .health import health_check
 from .sse_demo import sse_demo
 from .sse_demo_2 import sse_demo_2
+from .sse_demo_3 import sse_demo_3
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/health/', health_check, name='health-check'),
     path('api/sse-demo', sse_demo, name='sse-demo'),
     path('api/sse-demo-2', sse_demo_2, name='sse-demo-2'),
+    path('api/sse-demo-3', sse_demo_3, name='sse-demo-3'),
 ]
