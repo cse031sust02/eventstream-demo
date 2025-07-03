@@ -21,8 +21,7 @@ def system_stats_event_generator():
         }
 
         # SSE format: event: <type>
-data: <json_string>
-
+        # data: <json_string>
 
         yield f"event: system_stats\ndata: {json.dumps(data)}\n\n"
         # No need for additional time.sleep here as psutil.cpu_percent(interval=1) already introduces a delay
