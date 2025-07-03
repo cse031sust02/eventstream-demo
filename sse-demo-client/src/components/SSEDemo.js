@@ -118,6 +118,7 @@ function SSEDemo({ endpoint, title, description }) {
   const [timelineOpen, setTimelineOpen] = useState(true);
   const [thinkingSteps, setThinkingSteps] = useState([]);
   const [finalResponse, setFinalResponse] = useState(null);
+  const [systemStats, setSystemStats] = useState(null);
 
   useEffect(() => {
     let isCancelled = false;
@@ -126,6 +127,7 @@ function SSEDemo({ endpoint, title, description }) {
     setIsConnected(false);
     setThinkingSteps([]);
     setFinalResponse(null);
+    setSystemStats(null);
 
     const fetchSSE = async () => {
       try {
@@ -186,6 +188,8 @@ function SSEDemo({ endpoint, title, description }) {
                   setThinkingSteps(prev => [...prev, step]);
                 } else if (type === 'bot_response') {
                   setFinalResponse(parsedData.message?.content?.preview || data);
+                } else if (type === 'system_stats') {
+                  setSystemStats(parsedData);
                 }
               } else {
                 setEvents((prev) => [...prev, { type: 'file_data', data: data }]);
@@ -233,7 +237,7 @@ function SSEDemo({ endpoint, title, description }) {
       <div style={{ background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
         <h2 style={{ marginBottom: 8, color: '#2c3e50' }}>{title}</h2>
         <p style={{ color: '#666', marginBottom: 24 }}>{description}</p>
-        
+        {endpoint === 'sse-system-stats' && <SystemStatsDisplay stats={systemStats} />}
         <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
           <div style={{ 
             padding: '8px 16px',
@@ -287,7 +291,7 @@ function SSEDemo({ endpoint, title, description }) {
         )}
 
         {/* File stream data display */}
-        {fileDataEvents.length > 0 && (
+        {endpoint !== 'sse-system-stats' && fileDataEvents.length > 0 && (
           <div style={{ background: '#f8f9fa', borderRadius: 8, padding: 20, marginBottom: 24 }}>
             <h3 style={{ color: '#3498db', marginBottom: 12, fontSize: 18 }}>File Content Stream</h3>
             <div style={{ maxHeight: 350, overflowY: 'auto', fontFamily: 'monospace', fontSize: 15 }}>
@@ -301,6 +305,7 @@ function SSEDemo({ endpoint, title, description }) {
         )}
 
         {/* Timeline accordion */}
+        {endpoint !== 'sse-system-stats' && (
         <div style={{ background: '#f8f9fa', borderRadius: 12, padding: 0, minHeight: 100, marginBottom: 24 }}>
           <div 
             onClick={() => setTimelineOpen(open => !open)}
@@ -333,10 +338,11 @@ function SSEDemo({ endpoint, title, description }) {
             </div>
           )}
         </div>
-        <ResponseSection 
+        )}
+        {endpoint !== 'sse-system-stats' && <ResponseSection
           content={finalResponse} 
           isVisible={!!finalResponse}
-        />
+        />}
       </div>
       
       <style>{`
@@ -350,4 +356,77 @@ function SSEDemo({ endpoint, title, description }) {
   );
 }
 
-export default SSEDemo; 
+export default SSEDemo;
+
+function SystemStatsDisplay({ stats }) {
+  if (!stats) {
+    return (
+      <div style={{ color: '#6c757d', textAlign: 'center', padding: '40px 20px', fontSize: '16px' }}>
+        Waiting for system stats...
+      </div>
+    );
+  }
+
+  const barStyle = (percent) => ({
+    width: '100%',
+    backgroundColor: '#e9ecef',
+    borderRadius: '4px',
+    overflow: 'hidden',
+    marginBottom: '8px',
+    height: '20px',
+  });
+
+  const innerBarStyle = (percent, color) => ({
+    width: `${percent}%`,
+    backgroundColor: color,
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontSize: '12px',
+    transition: 'width 0.5s ease-in-out',
+  });
+
+  return (
+    <div style={{ background: '#fff', borderRadius: 8, padding: 20, marginBottom: 24, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+      <h3 style={{ color: '#17a2b8', marginBottom: 16, fontSize: 18 }}>System Vitals</h3>
+
+      <div style={{ marginBottom: 16 }}>
+        <strong style={{ color: '#343a40' }}>Overall CPU: {stats.cpu_overall_percent}%</strong>
+        <div style={barStyle(stats.cpu_overall_percent)}>
+          <div style={innerBarStyle(stats.cpu_overall_percent, '#007bff')}>
+            {stats.cpu_overall_percent}%
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 16 }}>
+        <strong style={{ color: '#343a40' }}>Memory: {stats.memory_percent}%</strong>
+        <div style={barStyle(stats.memory_percent)}>
+          <div style={innerBarStyle(stats.memory_percent, '#28a745')}>
+            {stats.memory_percent}%
+          </div>
+        </div>
+      </div>
+
+      {stats.cpu_per_core_percent && (
+        <div>
+          <strong style={{ color: '#343a40', marginBottom: '8px', display: 'block' }}>CPU Per Core:</strong>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '10px' }}>
+            {stats.cpu_per_core_percent.map((cpu, index) => (
+              <div key={index} style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#6c757d' }}>Core {index + 1}</div>
+                <div style={barStyle(cpu)}>
+                  <div style={innerBarStyle(cpu, '#fd7e14')}>
+                    {cpu.toFixed(1)}%
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

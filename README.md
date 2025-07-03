@@ -9,6 +9,7 @@ A real-time web scraping and content parsing demo using Django Server-Sent Event
 - **Server-Sent Events**: Real-time streaming updates
 - **React Frontend**: Modern UI with real-time message display
 - **Docker Support**: Containerized deployment
+- **Real-time System Monitoring**: Streams CPU and memory usage.
 
 ## Quick Start
 
@@ -41,6 +42,7 @@ docker-compose up --build
 - `GET /api/sse-demo` - Basic SSE demo
 - `GET /api/sse-demo-2` - Simple SSE demo (simulated web search)
 - `GET /api/sse-demo-3` - **Real web scraping SSE demo** (fetches real websites)
+- `GET /api/sse-system-stats` - System resource monitoring demo (CPU, Memory).
 
 ## Web Scraping Demo
 
@@ -53,6 +55,19 @@ The `/api/sse-demo-3` endpoint:
 ### Test with curl:
 ```bash
 curl -N http://localhost:8000/api/sse-demo-3
+```
+
+## System Resource Monitoring Demo
+
+The `/api/sse-system-stats` endpoint provides a real-time stream of server system metrics:
+- Overall CPU utilization percentage.
+- Per-core CPU utilization percentages.
+- Memory usage percentage.
+- Updates are streamed every second.
+
+### Test with curl:
+```bash
+curl -N http://localhost:8000/api/sse-system-stats
 ```
 
 ## Project Structure

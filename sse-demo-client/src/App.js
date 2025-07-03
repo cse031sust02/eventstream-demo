@@ -58,6 +58,20 @@ function Navigation() {
             >
               Web Scraping
             </Link>
+            <Link
+              to="/sse-system-stats"
+              style={{
+                color: 'white',
+                textDecoration: 'none',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#34495e'}
+              onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+            >
+              System Stats
+            </Link>
           </div>
         </div>
       </div>
@@ -100,6 +114,35 @@ function HomePage() {
             }}
             onMouseOver={(e) => e.target.style.backgroundColor = '#2980b9'}
             onMouseOut={(e) => e.target.style.backgroundColor = '#3498db'}
+          >
+            Try Demo
+          </Link>
+        </div>
+
+        <div style={{
+          background: 'white',
+          padding: '24px',
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          border: '1px solid #e0e0e0'
+        }}>
+          <h3 style={{ color: '#2c3e50', marginBottom: '12px' }}>System Resource Monitor</h3>
+          <p style={{ color: '#666', marginBottom: '16px' }}>
+            Streams real-time CPU and memory usage from the server.
+          </p>
+          <Link
+            to="/sse-system-stats"
+            style={{
+              display: 'inline-block',
+              background: '#f39c12',
+              color: 'white',
+              padding: '10px 20px',
+              borderRadius: '6px',
+              textDecoration: 'none',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#e67e22'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#f39c12'}
           >
             Try Demo
           </Link>
@@ -193,6 +236,13 @@ function App() {
               endpoint="sse-demo-3"
               title="Web Scraping Demo"
               description="Real-time web scraping and content parsing. Fetches content from random websites and parses HTML, JSON, and XML."
+            />
+          } />
+          <Route path="/sse-system-stats" element={
+            <SSEDemo
+              endpoint="sse-system-stats"
+              title="System Resource Monitor"
+              description="Streams real-time CPU and memory usage from the server."
             />
           } />
           <Route path="*" element={<Navigate to="/" replace />} />
